@@ -77,7 +77,7 @@
         <div id="section-learn" class="w-full flex flex-col items-center">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-indigo-900 mb-1">點擊卡片聽發音，跟著老師一起唸！</h2>
-                <p class="text-sm text-slate-600">總共有 9 個身體部位單字喔！</p>
+                <p class="text-sm text-slate-600">總共有 17 個單字喔！包含 9 個身體部位與 8 個動物。</p>
             </div>
             
             <div id="vocab-grid" class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
@@ -307,7 +307,6 @@
         let correctCount = parseInt(localStorage.getItem('kid_correct_count') || '0', 10);
         updateScoreDisplay();
         updateCorrectProgress();
-        setupHandwritingCanvas();
 
         function updateScoreDisplay() {
             document.getElementById('score-display').innerText = `${score} 星星`;
@@ -890,6 +889,9 @@
         let handwritingDrawing = false;
         let handwritingLastPoint = null;
         let handwritingModelVisible = false;
+
+        // 在手寫相關變數初始化後再綁定畫布，避免提早呼叫造成 TDZ 錯誤並中斷整個腳本。
+        setupHandwritingCanvas();
 
         function setupHandwritingCanvas() {
             const canvas = document.getElementById('handwriting-canvas');
