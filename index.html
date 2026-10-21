@@ -60,6 +60,22 @@
         </div>
     </div>
 
+    <div class="w-full max-w-4xl mb-4 rounded-3xl border-4 border-white/80 bg-white/90 p-4 shadow-lg">
+        <div class="mb-3 text-center">
+            <h2 class="text-xl md:text-2xl font-black text-indigo-800">🗓️ 本週英文單字</h2>
+            <p class="text-sm text-slate-600">選擇上課週次，只練習該週的單字喔！</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button type="button" id="week-2026-10-11" onclick="selectVocabularyWeek('2026-10-11')" class="week-select-btn rounded-2xl border-2 border-indigo-200 bg-white px-4 py-3 font-extrabold text-indigo-700 transition-all">
+                📅 10/11　身體部位（9 個）
+            </button>
+            <button type="button" id="week-2026-10-18" onclick="selectVocabularyWeek('2026-10-18')" class="week-select-btn rounded-2xl border-2 border-indigo-200 bg-white px-4 py-3 font-extrabold text-indigo-700 transition-all">
+                🐾 10/18　動物（8 個）
+            </button>
+        </div>
+        <p id="selected-week-label" class="mt-3 text-center font-bold text-pink-600">目前練習：10/18 動物單字</p>
+    </div>
+
     <nav class="w-full max-w-4xl flex justify-center space-x-2 md:space-x-4 mb-6">
         <button onclick="switchTab('learn')" id="tab-learn" class="tab-btn px-5 py-3 rounded-2xl font-bold text-base md:text-lg transition-all duration-300 bg-indigo-600 text-white shadow-lg shadow-indigo-300 transform -translate-y-1">
             📚 單字學習卡
@@ -77,7 +93,7 @@
         <div id="section-learn" class="w-full flex flex-col items-center">
             <div class="text-center mb-6">
                 <h2 class="text-2xl font-bold text-indigo-900 mb-1">點擊卡片聽發音，跟著老師一起唸！</h2>
-                <p class="text-sm text-slate-600">總共有 17 個單字喔！包含 9 個身體部位與 8 個動物。</p>
+                <p id="learn-week-description" class="text-sm text-slate-600">本週有 8 個動物單字，點擊卡片聽英文發音！</p>
             </div>
             
             <div id="vocab-grid" class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
@@ -220,43 +236,109 @@
     </div>
 
     <style>
-        /* iPad mini 6 專用：直向 744px、橫向 1133px，保留觸控空間並避免橫向溢出 */
-        @media (min-width: 600px) and (max-width: 900px) {
-            body { padding: 14px !important; gap: 0; }
-            header, main, footer, body > div, nav { width: 100%; max-width: 100% !important; }
-            header { padding: 16px !important; margin-bottom: 12px !important; }
-            header h1 { font-size: 1.65rem !important; }
-            nav { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px !important; margin-bottom: 16px !important; }
-            nav .tab-btn { min-width: 0; padding: 12px 6px !important; font-size: 1rem !important; line-height: 1.3; white-space: normal; }
-            main { justify-content: flex-start !important; margin-bottom: 12px !important; }
-            #section-learn > div:first-child { margin-bottom: 14px !important; }
-            #section-learn h2 { font-size: 1.35rem !important; }
-            #vocab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 14px !important; }
-            #section-quiz > div, #section-spelling > div { padding: 18px !important; }
-            #spelling-card { max-width: 100% !important; padding: 18px !important; }
-            #letter-tile-grid { max-width: 520px !important; gap: 10px !important; }
-            #letter-tile-grid button { min-height: 58px; font-size: 1.5rem; }
-            #spelling-answer-slots > * { min-width: 52px; min-height: 58px; }
-            #handwriting-canvas { height: 220px !important; }
-            button, input { touch-action: manipulation; }
-            button { min-height: 46px; }
-            footer { padding-top: 10px !important; }
+        /* iPad mini 6：直向與橫向共用的觸控友善版面 */
+        @media (min-width: 600px) and (max-width: 1200px) {
+            body {
+                box-sizing: border-box;
+                width: 100%;
+                max-width: 100vw;
+                padding: 16px !important;
+                gap: 0;
+                overflow-x: hidden;
+            }
+            *, *::before, *::after { box-sizing: border-box; }
+            header, main, footer, body > div, nav {
+                width: 100%;
+                max-width: 100% !important;
+                min-width: 0;
+            }
+            header {
+                padding: 18px !important;
+                margin-bottom: 14px !important;
+            }
+            header h1 { font-size: clamp(1.5rem, 3vw, 1.9rem) !important; line-height: 1.25; }
+            nav {
+                display: grid !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 10px !important;
+                margin-bottom: 16px !important;
+                width: 100%;
+            }
+            nav .tab-btn {
+                min-width: 0;
+                min-height: 52px;
+                padding: 12px 8px !important;
+                font-size: 1rem !important;
+                line-height: 1.3;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+            main { justify-content: flex-start !important; margin-bottom: 14px !important; }
+            #section-learn > div:first-child { margin-bottom: 16px !important; }
+            #section-learn h2 { font-size: 1.4rem !important; line-height: 1.3; }
+            /* 身體部位與動物單字卡固定兩欄 */
+            #vocab-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 14px !important;
+                width: 100%;
+            }
+            #vocab-grid > * { min-width: 0; }
+            #vocab-grid button, #vocab-grid [role="button"] { min-height: 54px; }
+            #section-quiz > div, #section-spelling > div { padding: 20px !important; }
+            #spelling-card { width: 100%; max-width: 100% !important; padding: 20px !important; }
+            #letter-tile-grid {
+                width: 100%;
+                max-width: 560px !important;
+                gap: 12px !important;
+            }
+            #letter-tile-grid button {
+                min-width: 54px;
+                min-height: 62px !important;
+                padding: 10px !important;
+                font-size: 1.55rem !important;
+                touch-action: manipulation;
+            }
+            #spelling-answer-slots > * {
+                min-width: 54px;
+                min-height: 62px;
+                font-size: 1.4rem;
+            }
+            #handwriting-canvas {
+                display: block;
+                width: 100%;
+                height: 260px !important;
+                touch-action: none;
+            }
+            #section-spelling button, #section-quiz button,
+            #section-learn button, #section-spelling input {
+                min-height: 48px;
+                touch-action: manipulation;
+            }
+            #section-spelling button, #section-quiz button { padding-top: 12px; padding-bottom: 12px; }
+            footer { padding-top: 12px !important; }
         }
-        /* iPad mini 橫向：利用寬度並控制縱向高度，減少不必要的捲動 */
+
+        /* iPad mini 6 橫向：用較寬的卡片與稍短的間距，仍保留足夠書寫區 */
         @media (min-width: 900px) and (max-height: 800px) {
-            body { padding: 12px 24px !important; }
+            body { padding: 12px 22px !important; }
             header { padding: 12px 20px !important; margin-bottom: 10px !important; }
             body > div { margin-bottom: 12px !important; }
-            nav { margin-bottom: 14px !important; }
+            nav { margin-bottom: 12px !important; }
             main { margin-bottom: 10px !important; }
-            #section-spelling > div { padding: 18px 24px !important; }
-            #spelling-card { padding: 16px !important; margin-bottom: 14px !important; }
-            #handwriting-canvas { height: 170px !important; }
+            #vocab-grid { gap: 16px !important; }
+            #section-spelling > div { padding: 16px 22px !important; }
+            #spelling-card { padding: 16px !important; margin-bottom: 12px !important; }
+            #handwriting-canvas { height: 220px !important; }
         }
+
+        /* 小螢幕保底：避免窄螢幕按鈕被擠壓 */
         @media (max-width: 599px) {
             nav { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px !important; }
-            nav .tab-btn { min-width: 0; padding: 10px 4px !important; font-size: .82rem !important; white-space: normal; }
-            #handwriting-canvas { height: 180px !important; }
+            nav .tab-btn { min-width: 0; min-height: 46px; padding: 10px 4px !important; font-size: .82rem !important; white-space: normal; }
+            #vocab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+            #handwriting-canvas { height: 210px !important; }
+            #letter-tile-grid button { min-height: 52px; }
         }
     </style>
 
@@ -283,23 +365,23 @@
 
         // Vocabulary list specified by teacher
         const vocabularyData = [
-            { en: "head",  zh: "頭",       imageKey: "head",  hint: "h _ _ d" },
-            { en: "hair",  zh: "頭髮",     imageKey: "hair",  hint: "h _ _ r" },
-            { en: "leg",   zh: "腿",       imageKey: "leg",   hint: "l _ g" },
-            { en: "face",  zh: "臉",       imageKey: "face",  hint: "f _ c e" },
-            { en: "eye",   zh: "眼睛",     imageKey: "eye",   hint: "e _ e" },
-            { en: "ear",   zh: "耳朵",     imageKey: "ear",   hint: "e _ r" },
-            { en: "mouth", zh: "嘴巴",     imageKey: "mouth", hint: "m _ u t h" },
-            { en: "smile", zh: "微笑 / 笑容", imageKey: "smile", hint: "s _ i l e" },
-            { en: "nose",  zh: "鼻子",     imageKey: "nose",  hint: "n _ s e", category: "body" },
-            { en: "frog",  zh: "青蛙",     emoji: "🐸", hint: "f _ o g", imagePath: "animals/frog.png", category: "animal" },
-            { en: "mouse", zh: "老鼠（單數）", emoji: "🐭", hint: "m _ u s e", imagePath: "animals/mouse.png", category: "animal" },
-            { en: "mice",  zh: "老鼠（複數）", emoji: "🐭🐭", hint: "m _ c e", imagePath: "animals/mice.png", category: "animal" },
-            { en: "sheep", zh: "綿羊",     emoji: "🐑", hint: "s h _ e p", imagePath: "animals/sheep.png", category: "animal" },
-            { en: "tiger", zh: "老虎",     emoji: "🐯", hint: "t _ g e r", imagePath: "animals/tiger.png", category: "animal" },
-            { en: "duck",  zh: "鴨子",     emoji: "🦆", hint: "d _ c k", imagePath: "animals/duck.png", category: "animal" },
-            { en: "cow",   zh: "乳牛",     emoji: "🐮", hint: "c _ w", imagePath: "animals/cow.png", category: "animal" },
-            { en: "bird",  zh: "小鳥",     emoji: "🐦", hint: "b _ r d", imagePath: "animals/bird.png", category: "animal" }
+            { en: "head",  zh: "頭",       imageKey: "head",  hint: "h _ _ d" , week: "2026-10-11" },
+            { en: "hair",  zh: "頭髮",     imageKey: "hair",  hint: "h _ _ r" , week: "2026-10-11" },
+            { en: "leg",   zh: "腿",       imageKey: "leg",   hint: "l _ g" , week: "2026-10-11" },
+            { en: "face",  zh: "臉",       imageKey: "face",  hint: "f _ c e" , week: "2026-10-11" },
+            { en: "eye",   zh: "眼睛",     imageKey: "eye",   hint: "e _ e" , week: "2026-10-11" },
+            { en: "ear",   zh: "耳朵",     imageKey: "ear",   hint: "e _ r" , week: "2026-10-11" },
+            { en: "mouth", zh: "嘴巴",     imageKey: "mouth", hint: "m _ u t h" , week: "2026-10-11" },
+            { en: "smile", zh: "微笑 / 笑容", imageKey: "smile", hint: "s _ i l e" , week: "2026-10-11" },
+            { en: "nose",  zh: "鼻子",     imageKey: "nose",  hint: "n _ s e", category: "body" , week: "2026-10-11" },
+            { en: "frog",  zh: "青蛙",     emoji: "🐸", hint: "f _ o g", imagePath: "animals/frog.png", category: "animal" , week: "2026-10-18" },
+            { en: "mouse", zh: "老鼠（單數）", emoji: "🐭", hint: "m _ u s e", imagePath: "animals/mouse.png", category: "animal" , week: "2026-10-18" },
+            { en: "mice",  zh: "老鼠（複數）", emoji: "🐭🐭", hint: "m _ c e", imagePath: "animals/mice.png", category: "animal" , week: "2026-10-18" },
+            { en: "sheep", zh: "綿羊",     emoji: "🐑", hint: "s h _ e p", imagePath: "animals/sheep.png", category: "animal" , week: "2026-10-18" },
+            { en: "tiger", zh: "老虎",     emoji: "🐯", hint: "t _ g e r", imagePath: "animals/tiger.png", category: "animal" , week: "2026-10-18" },
+            { en: "duck",  zh: "鴨子",     emoji: "🦆", hint: "d _ c k", imagePath: "animals/duck.png", category: "animal" , week: "2026-10-18" },
+            { en: "cow",   zh: "乳牛",     emoji: "🐮", hint: "c _ w", imagePath: "animals/cow.png", category: "animal" , week: "2026-10-18" },
+            { en: "bird",  zh: "小鳥",     emoji: "🐦", hint: "b _ r d", imagePath: "animals/bird.png", category: "animal" , week: "2026-10-18" }
         ];
 
         let score = parseInt(localStorage.getItem('kid_score') || '0', 10);
@@ -626,11 +708,51 @@
             }
         }
 
+        // 每週單字切換：學習卡、老師測驗與拼字挑戰共用同一週的單字清單。
+        let selectedVocabularyWeek = localStorage.getItem('kid_selected_vocabulary_week') || '2026-10-18';
+        function getCurrentWeekVocabulary() {
+            return vocabularyData.filter(item => item.week === selectedVocabularyWeek);
+        }
+        function selectVocabularyWeek(week) {
+            selectedVocabularyWeek = week;
+            localStorage.setItem('kid_selected_vocabulary_week', week);
+            document.querySelectorAll('.week-select-btn').forEach(button => {
+                const active = button.id === `week-${week}`;
+                button.classList.toggle('bg-indigo-600', active);
+                button.classList.toggle('text-white', active);
+                button.classList.toggle('border-indigo-600', active);
+                button.classList.toggle('shadow-md', active);
+                button.classList.toggle('bg-white', !active);
+                button.classList.toggle('text-indigo-700', !active);
+                button.classList.toggle('border-indigo-200', !active);
+            });
+            const isBodyWeek = week === '2026-10-11';
+            const label = document.getElementById('selected-week-label');
+            if (label) label.textContent = isBodyWeek ? '目前練習：10/11 身體部位單字' : '目前練習：10/18 動物單字';
+            const description = document.getElementById('learn-week-description');
+            if (description) description.textContent = isBodyWeek
+                ? '本週有 9 個身體部位單字，點擊卡片聽英文發音！'
+                : '本週有 8 個動物單字，點擊卡片聽英文發音！';
+            renderLearnCards();
+            // 切換週次時重設測驗，避免繼續出現上一週的題目。
+            const quizStart = document.getElementById('quiz-start-screen');
+            const quizActive = document.getElementById('quiz-active-screen');
+            if (quizStart) quizStart.classList.remove('hidden');
+            if (quizActive) quizActive.classList.add('hidden');
+            const quizPrompt = document.getElementById('teacher-prompt-zh');
+            if (quizPrompt) quizPrompt.textContent = '請點擊「開始老師測驗」';
+            const quizFeedback = document.getElementById('quiz-feedback');
+            if (quizFeedback) quizFeedback.innerHTML = '';
+            const spellingFeedback = document.getElementById('spelling-feedback');
+            if (spellingFeedback) spellingFeedback.innerHTML = '';
+            if (!document.getElementById('section-spelling').classList.contains('hidden')) loadSpellingQuestion();
+        }
+
         // Initialize Learn Cards
         function renderLearnCards() {
             const grid = document.getElementById('vocab-grid');
             grid.innerHTML = '';
-            vocabularyData.forEach((item) => {
+            getCurrentWeekVocabulary().forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-3xl p-4 md:p-5 shadow-xl border-4 border-indigo-100 flex flex-col items-center text-center transform hover:scale-105 transition-all duration-300 cursor-pointer';
                 card.onclick = () => {
@@ -655,6 +777,7 @@
             });
         }
         renderLearnCards();
+        selectVocabularyWeek(selectedVocabularyWeek);
 
         // Teacher Quiz Mode
         let currentQuizItem = null;
@@ -674,8 +797,9 @@
             document.getElementById('next-quiz-container').classList.add('hidden');
             document.getElementById('speech-status').innerText = '請點擊「聽老師說中文」聽取題目！';
 
-            const randomIndex = Math.floor(Math.random() * vocabularyData.length);
-            currentQuizItem = vocabularyData[randomIndex];
+            const weekVocabulary = getCurrentWeekVocabulary();
+            const randomIndex = Math.floor(Math.random() * weekVocabulary.length);
+            currentQuizItem = weekVocabulary[randomIndex];
             currentQuizAnswered = false;
             document.getElementById('quiz-spelling-input').disabled = false;
 
@@ -808,8 +932,9 @@
             document.getElementById('spelling-feedback').innerHTML = '';
             selectedSpellingTileIds = [];
 
-            const randomIndex = Math.floor(Math.random() * vocabularyData.length);
-            currentSpellingItem = vocabularyData[randomIndex];
+            const weekVocabulary = getCurrentWeekVocabulary();
+            const randomIndex = Math.floor(Math.random() * weekVocabulary.length);
+            currentSpellingItem = weekVocabulary[randomIndex];
             currentSpellingAnswered = false;
             document.getElementById('spelling-emoji').innerHTML = currentSpellingItem.emoji
                 ? `<div class="mx-auto w-44 h-36 flex items-center justify-center text-8xl bg-amber-50 rounded-2xl" role="img" aria-label="${currentSpellingItem.zh}">${currentSpellingItem.emoji}</div>`
